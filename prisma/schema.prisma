@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  photos    Photo[]
+  texts     Text[]
+  
+  @@map("users")
+}
+
+model Photo {
+  id        Int      @id @default(autoincrement())
+  title     String
+  url       String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("photos")
+}
+
+model Text {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("texts")
+}
+
+model FailedLoginAttempt {
+  id        Int      @id @default(autoincrement())
+  email     String
+  ip        String
+  createdAt DateTime @default(now())
+  
+  @@index([email, ip])
+  @@map("failed_login_attempts")
+}
