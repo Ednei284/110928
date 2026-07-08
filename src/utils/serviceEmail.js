@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { validator } from 'validator';
 
 export const transporter = nodemailer.createTransport({
   service: "gmail",
