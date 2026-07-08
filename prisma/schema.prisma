@@ -12,38 +12,38 @@ model User {
   email     String   @unique
   password  String
   name      String
+  token     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  photos    Photo[]
-  texts     Text[]
+  posts    Post[]
+  verification_code    VerificationCode[]
   
   @@map("users")
 }
 
-model Photo {
+model Post {
   id        Int      @id @default(autoincrement())
-  title     String
   url       String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("photos")
-}
-
-model Text {
-  id        Int      @id @default(autoincrement())
   title     String
   content   String
+  isPublic  Boolean  @default(false)
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  isPublic  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@map("texts")
+  @@map("posts")
+}
+
+model VerificationCode {
+  id        Int      @id @default(autoincrement())
+  code      String  
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("verification_code")
+
 }
 
 model FailedLoginAttempt {

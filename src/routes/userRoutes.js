@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { authenticate } = require('../middlewares/auth');
-const { getProfile, updateProfile, deleteUser } = require('../controllers/userController');
-const { privateLimiter } = require('../middlewares/rateLimit');
+import { authenticate } from '../middlewares/auth';
+import { getProfile, updateProfile, deleteUser } from '../controllers/userController';
+import { privateLimiter } from '../middlewares/rateLimit';
 
 // Todas as rotas de usuário são privadas
 router.use(authenticate);
@@ -12,4 +12,4 @@ router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.delete('/profile', deleteUser);
 
-module.exports = router;
+export default router;

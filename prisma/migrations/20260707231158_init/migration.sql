@@ -4,6 +4,7 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "token" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -11,28 +12,27 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
-CREATE TABLE "photos" (
+CREATE TABLE "posts" (
     "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
     "url" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
     "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "photos_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "posts_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "texts" (
+CREATE TABLE "verification_code" (
     "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "isPublic" BOOLEAN NOT NULL DEFAULT false,
+    "code" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" INTEGER NOT NULL,
 
-    CONSTRAINT "texts_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "verification_code_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -52,7 +52,7 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE INDEX "failed_login_attempts_email_ip_idx" ON "failed_login_attempts"("email", "ip");
 
 -- AddForeignKey
-ALTER TABLE "photos" ADD CONSTRAINT "photos_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "posts" ADD CONSTRAINT "posts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "texts" ADD CONSTRAINT "texts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "verification_code" ADD CONSTRAINT "verification_code_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -1,68 +1,11 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { validateEmail, validatePassword } = require('../utils/emailValidator');
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { transporter } from '../utils/serviceEmail';
 
 const prisma = new PrismaClient();
 
-const register = async (req, res) => {
-  try {
-    const { email, password, name } = req.body;
-
-    // Validação de email
-    if (!validateEmail(email)) {
-      return res.status(400).json({ error: 'Email inválido' });
-    }
-
-    // Validação de senha
-    if (!validatePassword(password)) {
-      return res.status(400).json({
-        error: 'Senha deve ter no mínimo 8 caracteres, 1 maiúscula, 1 minúscula e 1 número'
-      });
-    }
-
-    // Verifica se email já existe
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email já cadastrado' });
-    }
-
-    // Hash da senha
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Cria usuário
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true
-      }
-    });
-
-    // Gera token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.status(201).json({ user, token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao registrar usuário' });
-  }
-};
-
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const ip = req.ip;
@@ -116,31 +59,106 @@ const login = async (req, res) => {
       where: { email, ip }
     });
 
-    // Gera token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // Gera código de verificação
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    res.json({
+    // Armazena o código no banco de dados com expiração de 5 minutos
+    await prisma.verificationCode.create({
+      data: {
+        userId: user.id,
+        code,
+      }
+    });
+
+    await transporter.sendMail({
+      from: 'Administration',
+      to: email,
+      subject: "Verification code",
+      html: `<h1>Olá, ${user.name}!</h1>
+             <p>Seu código de verificação é: <b>${code}</b></p>
+             <p>Se você não solicitou essa alteração, ignore este e-mail.</p>
+             <p>Este código expira em 5 minutos.</p>
+             <p>Atenciosamente,</p>
+             <p>Equipe Administration</p>
+             `
+    });
+
+    res.status(200).json({
       user: {
         id: user.id,
-        email: user.email,
-        name: user.name
-      },
-      token
+      }
     });
+
+    setTimeout(async () => {
+      await prisma.verificationCode.deleteMany({
+        where: {
+          userId: user.id,
+
+        }
+      });
+    }, 5 * 60 * 1000); // 5 minutos
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao fazer login' });
   }
 };
 
-const logout = async (req, res) => {
-  // Como estamos usando JWT stateless, o logout é feito no cliente
-  // Mas podemos implementar uma blacklist se necessário
-  res.json({ message: 'Logout realizado com sucesso' });
+export const validateCode = (req, res) => {
+  try {
+    const { id, code } = req.body;
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+    // Verifica se o código é válido
+    const validCode = await prisma.verificationCode.findFirst({
+      where: {
+        userId: user.id,
+        code
+      }
+    });
+    if (!code || !user || !validCode) {
+      return res.status(400).json({ error: 'Código de verificação é obrigatório' });
+    }
+    // Gera token
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: { token }
+    })
+    // Retorna o token e o nome do usuário
+    res.status(200).json({
+      user: {
+        name: user.name
+      },
+      token
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao validar código' });
+  }
 };
 
-module.exports = { register, login, logout };
+export const logout = async (req, res) => {
+  // Aqui se o user resolver sair e tiver menos de duas horas o token deve ser apagado.
+  // Implementação da lógica de logout  
+  try {
+    const id = req.userId;
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    res.json({ message: 'Logout realizado com sucesso' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao fazer logout' });
+  }
+
+};

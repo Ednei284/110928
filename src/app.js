@@ -1,13 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { apiLimiter } = require('./middlewares/rateLimit');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { apiLimiter } from './middlewares/rateLimit';
 
 // Importar rotas
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const photoRoutes = require('./routes/photoRoutes');
-const textRoutes = require('./routes/textRoutes');
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import postsRoutes from './routes/postsRoutes';
 
 const app = express();
 
@@ -16,21 +15,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos (uploads)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 // Limite global de API
 app.use('/api', apiLimiter);
 
 // Rotas
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/photos', photoRoutes);
-app.use('/api/texts', textRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/posts', postsRoutes);
 
 // Rota de teste
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK', timestamp: new Date().toLocaleString('pt-BR') });
 });
 
 // Middleware de erro 404
@@ -44,4 +39,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
-module.exports = app;
+export default app;

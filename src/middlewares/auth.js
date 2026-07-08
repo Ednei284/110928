@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const authenticate = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -33,10 +33,8 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-const isPublic = (req, res, next) => {
+export const isPublic = (req, res, next) => {
   // Esta função será usada para verificar se o recurso é público
   // Será implementada nos controllers
   next();
 };
-
-module.exports = { authenticate };

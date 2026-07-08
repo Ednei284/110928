@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
+import { validateCode, login, logout } from '../controllers/authController';
+import { loginLimiter } from '../middlewares/rateLimit';
 const router = express.Router();
-const { register, login, logout } = require('../controllers/authController');
-const { loginLimiter } = require('../middlewares/rateLimit');
 
 // Rotas públicas
-router.post('/register', register);
+router.post('/validate-code', validateCode);
 router.post('/login', loginLimiter, login);
 router.post('/logout', logout);
 
-module.exports = router;
+export default router;
