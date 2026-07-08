@@ -1,36 +1,45 @@
 import { PrismaClient } from '@prisma/client';
-import { uploadPhoto, getPublicUrl } from '../utils/supabase';
+import { uploadPhotoOrThrow } from '../utils/supabase.js';
 
 const prisma = new PrismaClient();
 // Criar Post
-const createPost = async (req, res) => {
+export const createPost = async (req, res) => {
   try {
     // upload para supabase
-    const fileName = await uploadPhoto(req.file);
-    const publicUrl = getPublicUrl(fileName);
+    const { title, content } = req.body;
+    const arquivos = req.files;
+    const publicUrls = await uploadPhotoOrThrow(arquivos);
 
-    const { title, content, isPublic } = req.body;
+    // 1. Criamos uma lista dos campos que SÃO obrigatórios
+    const requiredFields = { title, content, url: publicUrls };
+    // 2. Verificamos se algum deles é nulo, undefined ou string vazia
+    for (let field in requiredFields) {
+      if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
+        return res.status(401).json({
+          error: `Todos os campos são obrigatórios.`
+        });
+      }
+    }
+
 
     const post = await prisma.post.create({
       data: {
         title,
-        url: publicUrl, // agora vem do Supabase
-        content: content || '',
-        isPublic: isPublic === 'true',
+        url: publicUrls,
+        content,
         userId: req.userId
       }
     });
 
-    res.status(201).json(post);
+    res.status(201).json({ message: 'Post criado com sucesso' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao criar post' });
   }
 };
 
-
 // Buscar todos os Posts do usuário
-const getPosts = async (req, res) => {
+export const getPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       where: { userId: req.userId },
@@ -45,7 +54,7 @@ const getPosts = async (req, res) => {
 };
 
 // Buscar Post por ID
-const getPostById = async (req, res) => {
+export const getPostById = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await prisma.post.findFirst({
@@ -66,8 +75,41 @@ const getPostById = async (req, res) => {
   }
 };
 
+export const updatePostById = async (req, res) => {
+  try {
+    const { id, content, title } = req.body;
+    const arquivos = req.files;
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(id),
+        userId: req.userId
+      }
+    });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post não encontrado' });
+    }
+
+    await prisma.post.upsert({
+      where: {
+        id: parseInt(id),
+        userId: req.userId
+      },
+      data: {
+        title,
+        content,
+        url: await uploadPhotoOrThrow(arquivos)
+      }
+    });
+
+    res.json({ message: 'Post atualizado com sucesso' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao atualizar post' });
+  }
+};
 // Deletar Post
-const deletePost = async (req, res) => {
+export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await prisma.post.findFirst({
@@ -92,4 +134,3 @@ const deletePost = async (req, res) => {
   }
 };
 
-module.exports = { createPost, getPosts, getPostById, deletePost };

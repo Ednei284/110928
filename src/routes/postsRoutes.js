@@ -1,22 +1,22 @@
 import express from 'express';
-import { authenticate } from '../middlewares/auth';
+import { authenticate } from '../middlewares/auth.js';
 import {
-  createPhoto,
-  getPhotos,
-  getPhotoById,
-  deletePhoto
-} from '../controllers/photoController';
-import { privateLimiter } from '../middlewares/rateLimit';
+  createPost,
+  getPosts,
+  getPostById,
+  deletePost
+} from '../controllers/postsController.js';
+import { privateLimiter } from '../middlewares/rateLimit.js';
 
 const router = express.Router();
 
 // Todas as rotas de foto são privadas
 router.use(privateLimiter);
 
-router.post('/', authenticate, createPhoto);
-router.get('/', getPhotos);
-router.get('/:id', getPhotoById);
-router.patch('/:id', authenticate, getPhotoById);
-router.delete('/:id', authenticate, deletePhoto);
+router.post('/', authenticate, createPost);
+router.get('/', getPosts);
+router.get('/:id', getPostById);
+router.patch('/:id', authenticate, getPostById);
+router.delete('/:id', authenticate, deletePost);
 
 export default router;

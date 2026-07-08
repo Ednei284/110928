@@ -14,10 +14,9 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "posts" (
     "id" SERIAL NOT NULL,
-    "url" TEXT NOT NULL,
+    "url" TEXT[],
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "isPublic" BOOLEAN NOT NULL DEFAULT false,
     "userId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

@@ -1,12 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { apiLimiter } from './middlewares/rateLimit';
+import { apiLimiter } from './middlewares/rateLimit.js';
 
 // Importar rotas
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import postsRoutes from './routes/postsRoutes';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import postsRoutes from './routes/postsRoutes.js';
 
 const app = express();
 

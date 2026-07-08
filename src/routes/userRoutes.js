@@ -1,8 +1,8 @@
 import express from 'express';
 const router = express.Router();
-import { authenticate } from '../middlewares/auth';
-import { getProfile, updateProfile, deleteUser } from '../controllers/userController';
-import { privateLimiter } from '../middlewares/rateLimit';
+import { authenticate } from '../middlewares/auth.js';
+import { deleteUser, getProfile, updateProfile } from '../controllers/userController.js';
+import { privateLimiter } from '../middlewares/rateLimit.js';
 
 // Todas as rotas de usuário são privadas
 router.use(authenticate);

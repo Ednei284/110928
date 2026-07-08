@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { transporter } from '../utils/serviceEmail';
+import { transporter } from '../utils/serviceEmail.js';
 
 const prisma = new PrismaClient();
 
@@ -104,7 +104,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const validateCode = (req, res) => {
+export const validateCode = async (req, res) => {
   try {
     const { id, code } = req.body;
     const user = await prisma.user.findUnique({

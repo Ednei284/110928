@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
-const { validateEmail, validatePassword } = require('../utils/emailValidator');
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { validateEmail, validatePassword } from '../utils/serviceEmail.js';
 
 const prisma = new PrismaClient();
 
-const getProfile = async (req, res) => {
+export const getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
@@ -28,7 +28,7 @@ const getProfile = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const updateData = {};
@@ -81,7 +81,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
   try {
     await prisma.user.delete({
       where: { id: req.userId }
@@ -93,5 +93,3 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ error: 'Erro ao deletar usuário' });
   }
 };
-
-module.exports = { getProfile, updateProfile, deleteUser };
