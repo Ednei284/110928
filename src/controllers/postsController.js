@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../utils/prisma.js';
+
 import { uploadPhotoOrThrow } from '../utils/supabase.js';
 
-const prisma = new PrismaClient();
 // Criar Post
 export const createPost = async (req, res) => {
   try {

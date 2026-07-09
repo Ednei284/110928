@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../utils/prisma.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { transporter } from '../utils/serviceEmail.js';
 
-const prisma = new PrismaClient();
+
 
 export const login = async (req, res) => {
   try {
@@ -107,8 +107,9 @@ export const login = async (req, res) => {
 export const validateCode = async (req, res) => {
   try {
     const { id, code } = req.body;
+    console.log('ID:', id, 'Code:', code);
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id: parseInt(id) }
     });
     // Verifica se o código é válido
     const validCode = await prisma.verificationCode.findFirst({
@@ -126,9 +127,9 @@ export const validateCode = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '2h' }
     );
-    await prisma.user.upsert({
+    await prisma.user.update({
       where: { id: user.id },
-      update: { token }
+      data: { token }
     })
     // Retorna o token e o nome do usuário
     res.status(200).json({
