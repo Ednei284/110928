@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate } from '../middlewares/auth.js';
+import { authenticate, isPublic } from '../middlewares/auth.js';
 import {
   createPost,
   getPosts,
@@ -14,7 +14,7 @@ const router = express.Router();
 router.use(privateLimiter);
 
 router.post('/', authenticate, createPost);
-router.get('/', getPosts);
+router.get('/', isPublic, getPosts);
 router.get('/:id', getPostById);
 router.patch('/:id', authenticate, getPostById);
 router.delete('/:id', authenticate, deletePost);
