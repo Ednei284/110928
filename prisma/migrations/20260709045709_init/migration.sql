@@ -35,20 +35,23 @@ CREATE TABLE "verification_code" (
 );
 
 -- CreateTable
-CREATE TABLE "failed_login_attempts" (
+CREATE TABLE "BlacklistedIP" (
     "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
     "ip" TEXT NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "blockedAt" TIMESTAMP(3),
+    "blocked" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "failed_login_attempts_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BlacklistedIP_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
-CREATE INDEX "failed_login_attempts_email_ip_idx" ON "failed_login_attempts"("email", "ip");
+CREATE UNIQUE INDEX "BlacklistedIP_ip_key" ON "BlacklistedIP"("ip");
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
