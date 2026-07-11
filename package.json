@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --watch src --exec node src/server.js",
-    "postinstall": "prisma generate --no-engine"
+    "postinstall": "prisma generate --no-engine",
+    "deploy": "vercel --prod"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -16,7 +17,6 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.11.1",
-    "@prisma/extension-accelerate": "^2.0.1",
     "@supabase/supabase-js": "^2.95.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -34,12 +34,14 @@
   "devDependencies": {
     "nodemon": "^3.1.10",
     "prisma": "^6.11.1",
-    "supabase": "^2.76.9"
+    "supabase": "^2.76.9",
+    "vercel": "^55.0.0"
   },
   "allowScripts": {
     "prisma@6.19.3": true,
     "sharp@0.34.5": true,
     "@prisma/client@6.19.3": true,
-    "@prisma/engines@6.19.3": true
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.27.0": true
   }
 }
