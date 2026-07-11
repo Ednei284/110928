@@ -45,12 +45,12 @@ model VerificationCode {
 
 }
 
-model FailedLoginAttempt {
+model BlacklistedIP {
   id        Int      @id @default(autoincrement())
-  email     String
-  ip        String
+  ip        String   @unique
+  attempts  Int      @default(1)
   createdAt DateTime @default(now())
-  
-  @@index([email, ip])
-  @@map("failed_login_attempts")
+  updatedAt DateTime @updatedAt
+  blockedAt DateTime? // Quando foi bloqueado
+  blocked   Boolean  @default(false)
 }
