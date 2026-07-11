@@ -1,15 +1,12 @@
 import { prisma } from '../utils/prisma.js';
 
-import { uploadPhotoOrThrow } from '../utils/supabase.js';
 
 // Criar Post
 export const createPost = async (req, res) => {
   try {
     // upload para supabase
-    const { title, content } = req.body;
-    const arquivos = req.files;
-    const publicUrls = await uploadPhotoOrThrow(arquivos);
-
+    const { title, content, publicUrls } = req.body;
+    const userId = parseInt(req.userId)
     // 1. Criamos uma lista dos campos que SÃO obrigatórios
     const requiredFields = { title, content, url: publicUrls };
     // 2. Verificamos se algum deles é nulo, undefined ou string vazia
@@ -21,13 +18,12 @@ export const createPost = async (req, res) => {
       }
     }
 
-
     const post = await prisma.post.create({
       data: {
         title,
         url: publicUrls,
         content,
-        userId: req.userId
+        userId
       }
     });
 
@@ -75,10 +71,10 @@ export const getPostById = async (req, res) => {
   }
 };
 
+// Update Post por ID
 export const updatePostById = async (req, res) => {
   try {
-    const { id, content, title } = req.body;
-    const arquivos = req.files;
+    const { id, content, title, publicUrls } = req.body;
     const post = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
@@ -93,12 +89,12 @@ export const updatePostById = async (req, res) => {
     await prisma.post.upsert({
       where: {
         id: parseInt(id),
-        userId: req.userId
+        userId: parseInt(req.userId)
       },
       data: {
         title,
         content,
-        url: await uploadPhotoOrThrow(arquivos)
+        url: publicUrls
       }
     });
 
@@ -108,6 +104,7 @@ export const updatePostById = async (req, res) => {
     res.status(500).json({ error: 'Erro ao atualizar post' });
   }
 };
+
 // Deletar Post
 export const deletePost = async (req, res) => {
   try {
