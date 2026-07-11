@@ -14,10 +14,10 @@ const router = express.Router();
 // Todas as rotas de foto são privadas
 router.use(privateLimiter);
 
-router.post('/', authenticate, createPost);
 router.get('/', getPosts);
+router.post('/', authenticate, createPost);
 router.get('/:id', authenticate, getPostById);
-router.patch('/:id', authenticate, updatePostById);
 router.delete('/:id', authenticate, deletePost);
+router.patch('/:id', authenticate, updatePostById);
 
 export default router;

@@ -33,8 +33,4 @@ export const authenticate = async (req, res, next) => {
   }
 };
 
-export const isPublic = (req, res, next) => {
-  // Esta função será usada para verificar se o recurso é público
-  // Será implementada nos controllers
-  next();
-};
+
