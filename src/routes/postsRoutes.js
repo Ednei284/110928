@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(privateLimiter);
 
 router.post('/', authenticate, createPost);
-router.get('/', isPublic, getPosts);
+router.get('/', getPosts);
 router.get('/:id', authenticate, getPostById);
 router.patch('/:id', authenticate, updatePostById);
 router.delete('/:id', authenticate, deletePost);

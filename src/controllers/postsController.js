@@ -40,7 +40,6 @@ export const getPosts = async (req, res) => {
     const posts = await prisma.post.findMany({
       orderBy: { createdAt: 'desc' }
     });
-
     res.json(posts);
   } catch (error) {
     console.error(error);
