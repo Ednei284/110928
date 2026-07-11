@@ -11,17 +11,18 @@ export const loginLimiter = rateLimit({
   // Handler executado quando atinge o limite
   handler: async (req, res) => {
     const ip = req.ip || req.connection.remoteAddress;
+    const cleanIP = ip.replace('::ffff:', '');
 
     try {
       // Verifica se IP já existe
       const existingIP = await prisma.blacklistedIP.findUnique({
-        where: { ip }
+        where: { ip: cleanIP }
       });
 
       if (existingIP) {
         // Atualiza contagem e bloqueia
         await prisma.blacklistedIP.update({
-          where: { ip },
+          where: { ip: cleanIP },
           data: {
             attempts: { increment: 1 },
             blocked: true,
@@ -32,7 +33,7 @@ export const loginLimiter = rateLimit({
         // Cria novo registro bloqueado
         await prisma.blacklistedIP.create({
           data: {
-            ip,
+            ip: cleanIP,
             attempts: 1,
             blocked: true,
             blockedAt: new Date()
@@ -62,17 +63,17 @@ export const apiLimiter = rateLimit({
   },
   handler: async (req, res) => {
     const ip = req.ip || req.connection.remoteAddress;
-
+    const cleanIP = ip.replace('::ffff:', '');
     try {
       // Verifica se IP já existe
       const existingIP = await prisma.blacklistedIP.findUnique({
-        where: { ip }
+        where: { ip: cleanIP }
       });
 
       if (existingIP) {
         // Atualiza contagem e bloqueia
         await prisma.blacklistedIP.update({
-          where: { ip },
+          where: { ip: cleanIP },
           data: {
             attempts: { increment: 1 },
             blocked: true,
@@ -83,7 +84,7 @@ export const apiLimiter = rateLimit({
         // Cria novo registro bloqueado
         await prisma.blacklistedIP.create({
           data: {
-            ip,
+            ip: cleanIP,
             attempts: 1,
             blocked: true,
             blockedAt: new Date()
@@ -113,17 +114,18 @@ export const privateLimiter = rateLimit({
   },
   handler: async (req, res) => {
     const ip = req.ip || req.connection.remoteAddress;
+    const cleanIP = ip.replace('::ffff:', '');
 
     try {
       // Verifica se IP já existe
       const existingIP = await prisma.blacklistedIP.findUnique({
-        where: { ip }
+        where: { ip: cleanIP }
       });
 
       if (existingIP) {
         // Atualiza contagem e bloqueia
         await prisma.blacklistedIP.update({
-          where: { ip },
+          where: { ip: cleanIP },
           data: {
             attempts: { increment: 1 },
             blocked: true,
@@ -134,7 +136,7 @@ export const privateLimiter = rateLimit({
         // Cria novo registro bloqueado
         await prisma.blacklistedIP.create({
           data: {
-            ip,
+            ip: cleanIP,
             attempts: 1,
             blocked: true,
             blockedAt: new Date()
