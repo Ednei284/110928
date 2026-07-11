@@ -3,13 +3,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { transporter } from '../utils/serviceEmail.js';
 
-
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const ip = req.ip;
-
+    const cleanIP = ip.replace('::ffff:', '');
     // Validação básica
     if (!email || !password) {
       return res.status(400).json({ error: 'Email e senha são obrigatórios' });
@@ -19,7 +17,7 @@ export const login = async (req, res) => {
     const failedAttempts = await prisma.failedLoginAttempt.count({
       where: {
         email,
-        ip,
+        ip: cleanIP,
         createdAt: {
           gte: new Date(Date.now() - 15 * 60 * 1000) // Últimos 15 minutos
         }
@@ -40,7 +38,7 @@ export const login = async (req, res) => {
     if (!user) {
       // Registra tentativa falha
       await prisma.failedLoginAttempt.create({
-        data: { email, ip }
+        data: { email, ip: cleanIP }
       });
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
@@ -49,14 +47,14 @@ export const login = async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       await prisma.failedLoginAttempt.create({
-        data: { email, ip }
+        data: { email, ip: cleanIP }
       });
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
     // Login bem sucedido - limpa tentativas
     await prisma.failedLoginAttempt.deleteMany({
-      where: { email, ip }
+      where: { email, ip: cleanIP }
     });
 
     // Gera código de verificação
@@ -125,7 +123,7 @@ export const validateCode = async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '2h' }
+      { expiresIn: '3h' }
     );
     await prisma.user.update({
       where: { id: user.id },
@@ -145,8 +143,6 @@ export const validateCode = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  // Aqui se o user resolver sair e tiver menos de duas horas o token deve ser apagado.
-  // Implementação da lógica de logout  
   try {
     const id = req.userId;
     const user = await prisma.user.findUnique({
@@ -155,7 +151,9 @@ export const logout = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
-
+    await prisma.user.delete({
+      where: { token: user.token }
+    });
     res.json({ message: 'Logout realizado com sucesso' });
   } catch (error) {
     console.error(error);
