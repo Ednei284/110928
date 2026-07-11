@@ -38,7 +38,6 @@ export const createPost = async (req, res) => {
 export const getPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
-      where: { userId: req.userId },
       orderBy: { createdAt: 'desc' }
     });
 

@@ -4,6 +4,7 @@ import {
   createPost,
   getPosts,
   getPostById,
+  updatePostById,
   deletePost
 } from '../controllers/postsController.js';
 import { privateLimiter } from '../middlewares/rateLimit.js';
@@ -15,8 +16,8 @@ router.use(privateLimiter);
 
 router.post('/', authenticate, createPost);
 router.get('/', isPublic, getPosts);
-router.get('/:id', getPostById);
-router.patch('/:id', authenticate, getPostById);
+router.get('/:id', authenticate, getPostById);
+router.patch('/:id', authenticate, updatePostById);
 router.delete('/:id', authenticate, deletePost);
 
 export default router;
