@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate, isPublic } from '../middlewares/auth.js';
+import { authenticate } from '../middlewares/auth.js';
 import {
   createPost,
   getPosts,
