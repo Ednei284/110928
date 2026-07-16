@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@prisma/extension-accelerate": "^3.0.1",
     "@supabase/supabase-js": "^2.95.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -35,7 +36,7 @@
     "nodemon": "^3.1.10",
     "prisma": "^6.11.1",
     "supabase": "^2.76.9",
-    "vercel": "^55.0.0"
+    "vercel": "^54.17.3"
   },
   "allowScripts": {
     "prisma@6.19.3": true,

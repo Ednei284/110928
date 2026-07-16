@@ -54,3 +54,13 @@ model BlacklistedIP {
   blockedAt DateTime? // Quando foi bloqueado
   blocked   Boolean  @default(false)
 }
+model FailedLoginAttempt {
+  id        Int      @id @default(autoincrement())
+  email     String
+  ip        String
+  createdAt DateTime @default(now())
+  
+  @@index([email, ip])
+  @@index([createdAt])
+  @@map("failed_login_attempts")
+}
