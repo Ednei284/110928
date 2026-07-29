@@ -16,7 +16,7 @@ export const authenticate = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Usuário não encontrado' });
+      return res.status(402).json({ error: 'Usuário não encontrado' });
     }
 
     req.user = user;
@@ -24,10 +24,10 @@ export const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Token inválido' });
+      return res.status(403).json({ error: 'Token inválido' });
     }
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expirado' });
+      return res.status(405).json({ error: 'Token expirado' });
     }
     return res.status(500).json({ error: 'Erro ao autenticar' });
   }
