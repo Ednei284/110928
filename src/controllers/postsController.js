@@ -73,7 +73,9 @@ export const getPostById = async (req, res) => {
 // Update Post por ID
 export const updatePostById = async (req, res) => {
   try {
-    const { id, content, title, publicUrls } = req.body;
+    const { content, title, publicUrls } = req.body;
+    const { id } = req.params;
+
     const post = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
@@ -85,10 +87,10 @@ export const updatePostById = async (req, res) => {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
 
-    await prisma.post.upsert({
+    await prisma.post.update({
       where: {
         id: parseInt(id),
-        userId: parseInt(req.userId)
+        userId: req.userId
       },
       data: {
         title,

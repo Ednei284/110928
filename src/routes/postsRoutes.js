@@ -20,4 +20,5 @@ router.get('/:id', authenticate, getPostById);
 router.delete('/:id', authenticate, deletePost);
 router.patch('/:id', authenticate, updatePostById);
 
+
 export default router;
