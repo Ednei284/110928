@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { apiLimiter } from './middlewares/rateLimit.js';
-// import validateApiKey from './middlewares/validateApiKey.js';
+import validateApiKey from './middlewares/validateApiKey.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import postsRoutes from './routes/postsRoutes.js';
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Limite global de API
-// app.use('/api', validateApiKey);
+app.use('/api', validateApiKey);
 app.use('/api', apiLimiter);
 
 // Rotas
