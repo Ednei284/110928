@@ -1,15 +1,15 @@
 import { prisma } from '../utils/prisma.js';
+import { uploadImages } from '../utils/supabase.js';
 
 
 // Criar Post
 export const createPost = async (req, res) => {
   try {
     // upload para supabase
-    const { title, content, url } = req.body;
-
+    const { title, content } = req.body;
     const userId = parseInt(req.userId)
-    // 1. Criamos uma lista dos campos que SÃO obrigatórios
-    const requiredFields = { title, content, url };
+    const arquivo = req.files;
+    const requiredFields = { title, content, url: arquivo };
     // 2. Verificamos se algum deles é nulo, undefined ou string vazia
     for (let field in requiredFields) {
       if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
@@ -18,11 +18,12 @@ export const createPost = async (req, res) => {
         });
       }
     }
+    const images = await uploadImages(arquivo, 'produtos');
 
     const post = await prisma.post.create({
       data: {
         title,
-        url,
+        url: images,
         content,
         userId
       }
@@ -73,8 +74,19 @@ export const getPostById = async (req, res) => {
 // Update Post por ID
 export const updatePostById = async (req, res) => {
   try {
-    const { content, title, publicUrls } = req.body;
+    const { title, content } = req.body;
     const { id } = req.params;
+    const userId = parseInt(req.userId)
+    const arquivo = req.files;
+    const requiredFields = { title, content, url: arquivo };
+    for (let field in requiredFields) {
+      if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
+        return res.status(401).json({
+          error: `Todos os campos são obrigatórios.`
+        });
+      }
+    }
+    const images = await uploadImages(arquivo, 'photo');
 
     const post = await prisma.post.findFirst({
       where: {
@@ -95,7 +107,7 @@ export const updatePostById = async (req, res) => {
       data: {
         title,
         content,
-        url: publicUrls
+        url: images
       }
     });
 

@@ -6,6 +6,7 @@ import { transporter } from '../utils/serviceEmail.js';
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const ip = req.ip;
     const cleanIP = ip.replace('::ffff:', '');
     // Validação básica
@@ -61,7 +62,7 @@ export const login = async (req, res) => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Armazena o código no banco de dados com expiração de 5 minutos
-    await prisma.verificationCode.create({
+    const verificationCode = await prisma.verificationCode.create({
       data: {
         userId: user.id,
         code,
@@ -94,7 +95,7 @@ export const login = async (req, res) => {
 
         }
       });
-    }, 5 * 60 * 1000); // 5 minutos
+    }, 10 * 60 * 1000); // 5 minutos
 
   } catch (error) {
     console.error(error);
@@ -105,6 +106,8 @@ export const login = async (req, res) => {
 export const validateCode = async (req, res) => {
   try {
     const { id, code } = req.body;
+    console.log(id, code);
+
     const user = await prisma.user.findUnique({
       where: { id: parseInt(id) }
     });
