@@ -106,8 +106,6 @@ export const login = async (req, res) => {
 export const validateCode = async (req, res) => {
   try {
     const { id, code } = req.body;
-    console.log(id, code);
-
     const user = await prisma.user.findUnique({
       where: { id: parseInt(id) }
     });

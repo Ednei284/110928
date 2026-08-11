@@ -19,11 +19,11 @@ router.use(privateLimiter);
 
 
 router.get('/', getPosts);
-router.post('/', authenticate, upload.array('url', 3), createPost);
+router.post('/', authenticate, upload.array('files', 3), createPost);
 
 router.get('/:id', authenticate, getPostById);
 router.delete('/:id', authenticate, deletePost);
-router.patch('/:id', authenticate, upload.array('url', 3), updatePostById);
+router.patch('/:id', authenticate, upload.array('files', 3), updatePostById);
 
 
 export default router;

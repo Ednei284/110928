@@ -8,8 +8,9 @@ export const createPost = async (req, res) => {
     // upload para supabase
     const { title, content } = req.body;
     const userId = parseInt(req.userId)
-    const arquivo = req.files;
-    const requiredFields = { title, content, url: arquivo };
+    const files = req.files;
+    const requiredFields = { title, content, url: files };
+
     // 2. Verificamos se algum deles é nulo, undefined ou string vazia
     for (let field in requiredFields) {
       if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
@@ -18,20 +19,26 @@ export const createPost = async (req, res) => {
         });
       }
     }
-    const images = await uploadImages(arquivo, 'produtos');
-
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: 'Pelo menos uma imagem é obrigatória.' });
+    }
+    let images = [];
+    if (files && files.length > 0) {
+      images = await uploadImages(files, 'photo');
+    }
+    // 3. Criação do Post
     const post = await prisma.post.create({
       data: {
-        title,
+        title: title.trim(),
         url: images,
-        content,
+        content: content ? content.trim() : null,
         userId
       }
     });
 
     res.status(201).json({ message: 'Post criado com sucesso' });
   } catch (error) {
-    console.error(error);
+    console.error(error.status);
     res.status(500).json({ error: 'Erro ao criar post' });
   }
 };
@@ -77,8 +84,8 @@ export const updatePostById = async (req, res) => {
     const { title, content } = req.body;
     const { id } = req.params;
     const userId = parseInt(req.userId)
-    const arquivo = req.files;
-    const requiredFields = { title, content, url: arquivo };
+    const url = req.files;
+    const requiredFields = { title, content, url };
     for (let field in requiredFields) {
       if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
         return res.status(401).json({
@@ -86,7 +93,6 @@ export const updatePostById = async (req, res) => {
         });
       }
     }
-    const images = await uploadImages(arquivo, 'photo');
 
     const post = await prisma.post.findFirst({
       where: {
@@ -99,6 +105,7 @@ export const updatePostById = async (req, res) => {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
 
+    const images = await uploadImages(files, 'photo');
     await prisma.post.update({
       where: {
         id: parseInt(id),
