@@ -16,9 +16,10 @@ export async function uploadImages(files, folder, userId) {
     const fileExt = 'webp';
 
     const filePath = folder === "photo" ? `${folder}/${userId}img_${Date.now()}.${fileExt}` : `${folder}/${userId}img_${Date.now()}.${fileExt}`;
-    const largura = folder === 'photo' ? 100 : 300;
+    const largura = folder === 'photo' ? 300 : 300;
+    const altura = folder === 'photo' ? 300 : 300;
     const optimizedBuffer = await sharp(file.buffer)
-      .resize(largura) // Redimensiona
+      .resize(largura, altura) // Redimensiona
       .webp({ quality: 80 }) // Comprime
       .toBuffer();
 

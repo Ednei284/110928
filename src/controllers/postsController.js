@@ -25,6 +25,8 @@ export const createPost = async (req, res) => {
     let images = [];
     if (files && files.length > 0) {
       images = await uploadImages(files, 'photo');
+      console.log(images);
+
     }
     // 3. Criação do Post
     const post = await prisma.post.create({
@@ -84,8 +86,9 @@ export const updatePostById = async (req, res) => {
     const { title, content } = req.body;
     const { id } = req.params;
     const userId = parseInt(req.userId)
-    const url = req.files;
-    const requiredFields = { title, content, url };
+    const files = req.files;
+    const requiredFields = { title, content, url: files };
+
     for (let field in requiredFields) {
       if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
         return res.status(401).json({
@@ -104,8 +107,12 @@ export const updatePostById = async (req, res) => {
     if (!post) {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
+    let images = [];
+    if (files && files.length > 0) {
+      images = await uploadImages(files, 'photo');
+      console.log(images);
 
-    const images = await uploadImages(files, 'photo');
+    }
     await prisma.post.update({
       where: {
         id: parseInt(id),

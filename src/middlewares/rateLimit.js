@@ -57,7 +57,7 @@ export const loginLimiter = rateLimit({
 // Limite geral para API
 export const apiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 100,
+  max: 300,
   message: {
     error: 'Muitas requisições. Tente novamente mais tarde.'
   },
