@@ -25,7 +25,6 @@ export const createPost = async (req, res) => {
     let images = [];
     if (files && files.length > 0) {
       images = await uploadImages(files, 'photo');
-      console.log(images);
 
     }
     // 3. Criação do Post
@@ -110,7 +109,6 @@ export const updatePostById = async (req, res) => {
     let images = [];
     if (files && files.length > 0) {
       images = await uploadImages(files, 'photo');
-      console.log(images);
 
     }
     await prisma.post.update({
