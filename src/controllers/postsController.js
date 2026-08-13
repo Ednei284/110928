@@ -5,41 +5,40 @@ import { uploadImages } from '../utils/supabase.js';
 // Criar Post
 export const createPost = async (req, res) => {
   try {
-    // upload para supabase
-    const { title, content } = req.body;
-    const userId = parseInt(req.userId)
-    const files = req.files;
-    const requiredFields = { title, content, url: files };
-
-    // 2. Verificamos se algum deles é nulo, undefined ou string vazia
-    for (let field in requiredFields) {
-      if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
-        return res.status(401).json({
-          error: `Todos os campos são obrigatórios.`
-        });
+    const rawParts = req.body._parts;
+    const userId = req.userId;
+    if (rawParts) {
+      const data = Object.fromEntries(rawParts);
+      const { title, content, files } = data;
+      const requiredFields = { title, content, files };
+      for (let field in requiredFields) {
+        if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
+          return res.status(401).json({
+            message: `Todos os campos são obrigatórios.`
+          });
+        }
       }
-    }
-    if (!files || files.length === 0) {
-      return res.status(400).json({ message: 'Pelo menos uma imagem é obrigatória.' });
-    }
-    let images = [];
-    if (files && files.length > 0) {
-      images = await uploadImages(files, 'photo');
-
-    }
-    // 3. Criação do Post
-    const post = await prisma.post.create({
-      data: {
-        title: title.trim(),
-        url: images,
-        content: content ? content.trim() : null,
-        userId
+      if (!files || files.length === 0) {
+        return res.status(400).json({ message: 'Pelo menos uma imagem é obrigatória.' });
       }
-    });
+      let images = [];
+      if (files && files.length > 0) {
+        images = await uploadImages(files, 'photo');
+      }
+      // 3. Criação do Post
+      const post = await prisma.post.create({
+        data: {
+          title: title.trim(),
+          url: images,
+          content: content ? content.trim() : null,
+          userId
+        }
+      });
 
-    res.status(201).json({ message: 'Post criado com sucesso' });
+      return res.json({ message: 'Post criado com sucesso' });
+    }
   } catch (error) {
-    console.error(error.status);
+    console.error(error);
     res.status(500).json({ error: 'Erro ao criar post' });
   }
 };
@@ -86,15 +85,7 @@ export const updatePostById = async (req, res) => {
     const { id } = req.params;
     const userId = parseInt(req.userId)
     const files = req.files;
-    const requiredFields = { title, content, url: files };
 
-    for (let field in requiredFields) {
-      if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
-        return res.status(401).json({
-          error: `Todos os campos são obrigatórios.`
-        });
-      }
-    }
 
     const post = await prisma.post.findFirst({
       where: {
@@ -123,7 +114,7 @@ export const updatePostById = async (req, res) => {
       }
     });
 
-    res.json({ message: 'Post atualizado com sucesso' });
+    return res.json({ message: 'Post atualizado com sucesso' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao atualizar post' });
