@@ -31,7 +31,7 @@ router.use(privateLimiter);
 
 
 router.get('/', getPosts);
-router.post('/', authenticate, upload.array('files'), createPost);
+router.post('/', authenticate, upload.array('files', 3), createPost);
 
 router.get('/:id', authenticate, getPostById);
 router.delete('/:id', authenticate, deletePost);
