@@ -35,7 +35,7 @@ export const createPost = async (req, res) => {
         }
       });
 
-      return res.json({ message: 'Post criado com sucesso' });
+      res.status(201).json({ message: 'Post criado com sucesso' });
     }
   } catch (error) {
     console.error(error);
@@ -71,7 +71,7 @@ export const getPostById = async (req, res) => {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
 
-    res.json(post);
+    res.status(200).json(post);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao buscar post' });
@@ -114,7 +114,7 @@ export const updatePostById = async (req, res) => {
       }
     });
 
-    return res.json({ message: 'Post atualizado com sucesso' });
+    res.status(200).json({ message: 'Post atualizado com sucesso' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao atualizar post' });
@@ -140,7 +140,7 @@ export const deletePost = async (req, res) => {
       where: { id: parseInt(id) }
     });
 
-    res.json({ message: 'Post deletado com sucesso' });
+    res.status(200).json({ message: 'Post deletado com sucesso' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao deletar post' });

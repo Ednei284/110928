@@ -18,14 +18,14 @@ export const getProfile = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    res.json(user);
+    res.status(200).json(user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao buscar perfil' });
   }
 };
 
-export const updateProfile = async (req, res) => {
+export const updateProfileEmailName = async (req, res) => {
   try {
     const { name, email } = req.body;
     const user = await prisma.user.update({
@@ -40,13 +40,13 @@ export const updateProfile = async (req, res) => {
       name,
       email
     };
-    
+
     const newUser = await prisma.user.update({
       where: { id: req.userId },
       data: updatedData
     });
 
-    res.json(newUser);
+    res.status(200).json(newUser);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao atualizar perfil' });
@@ -78,7 +78,7 @@ export const updateProfilePassword = async (req, res) => {
       data: updatedData
     });
 
-    res.json(newUser);
+    res.status(200).json(newUser);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao atualizar perfil' });

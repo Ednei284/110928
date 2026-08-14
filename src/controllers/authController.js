@@ -154,7 +154,7 @@ export const logout = async (req, res) => {
     await prisma.user.delete({
       where: { token: user.token }
     });
-    res.json({ message: 'Logout realizado com sucesso' });
+    res.status(200).json({ message: 'Logout realizado com sucesso' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao fazer logout' });
