@@ -7,7 +7,7 @@ export const authenticate = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
-      return res.status(401).json({ error: 'Token não fornecido' });
+      return res.status(402).json({ error: 'Token não fornecido' });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -17,19 +17,16 @@ export const authenticate = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(402).json({ error: 'Usuário não encontrado' });
+      return res.status(403).json({ error: 'Usuário não encontrado' });
     }
 
     req.user = user;
     req.userId = user.id;
+
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(403).json({ error: 'Token inválido' });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(405).json({ error: 'Token expirado' });
-    }
+    console.log(error);
+
     return res.status(500).json({ error: 'Erro ao autenticar' });
   }
 };

@@ -74,7 +74,7 @@ export const login = async (req, res) => {
       to: email,
       subject: "Verification code",
       html: `<h1>Olá, ${user.name}!</h1>
-             <p>Seu código de verificação é: <b>${code}</b></p>
+             <p>Seu código de verificação é: <b>${verificationCode.code}</b></p>
              <p>Se você não solicitou essa alteração, ignore este e-mail.</p>
              <p>Este código expira em 5 minutos.</p>
              <p>Atenciosamente,</p>
@@ -134,7 +134,7 @@ export const validateCode = async (req, res) => {
       user: {
         name: user.name
       },
-      token
+      token: user.token
     });
   } catch (error) {
     console.error(error);

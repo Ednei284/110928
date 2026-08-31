@@ -5,38 +5,31 @@ import { uploadImages } from '../utils/supabase.js';
 // Criar Post
 export const createPost = async (req, res) => {
   try {
-    const rawParts = req.body._parts;
+    const { title, content } = req.body;
+    const files = req.files;
     const userId = req.userId;
-    if (rawParts) {
-      const data = Object.fromEntries(rawParts);
-      const { title, content, files } = data;
-      const requiredFields = { title, content, files };
-      for (let field in requiredFields) {
-        if (!requiredFields[field] || requiredFields[field] === "" || requiredFields[field] === undefined) {
-          return res.status(401).json({
-            message: `Todos os campos são obrigatórios.`
-          });
-        }
-      }
-      if (!files || files.length === 0) {
-        return res.status(400).json({ message: 'Pelo menos uma imagem é obrigatória.' });
-      }
-      let images = [];
-      if (files && files.length > 0) {
-        images = await uploadImages(files, 'photo');
-      }
-      // 3. Criação do Post
-      const post = await prisma.post.create({
-        data: {
-          title: title.trim(),
-          url: images,
-          content: content ? content.trim() : null,
-          userId
-        }
-      });
 
-      res.status(201).json({ message: 'Post criado com sucesso' });
+    // 1. Validação do Título (Obrigatório)
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ error: 'O título é obrigatório.' });
     }
+    // 3. Upload das imagens (fora de loops de validação)
+    const images = await uploadImages(files, 'photo');
+
+    // 4. Criação da Postagem no Prisma
+    const newPost = await prisma.post.create({
+      data: {
+        title: title.trim(),
+        content: content && content.trim() !== '' ? content.trim() : null,
+        url: images,
+        userId: parseInt(userId),
+      },
+    });
+
+    // 5. Resposta enviada APENAS UMA VEZ ao final
+    return res.status(201).json({
+      message: 'Post criado com sucesso'
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro ao criar post' });
