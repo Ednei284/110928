@@ -13,7 +13,12 @@ export const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true
+      }
     });
 
     if (!user) {
@@ -25,9 +30,8 @@ export const authenticate = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.log(error);
-
-    return res.status(500).json({ error: 'Erro ao autenticar' });
+    console.error(error);
+    return res.status(error.status).json({ error: 'Erro ao autenticar' });
   }
 };
 

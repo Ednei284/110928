@@ -32,7 +32,7 @@ export const createPost = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao criar post' });
+    return res.status(500).json({ error: 'Erro ao criar post' });
   }
 };
 
@@ -74,36 +74,36 @@ export const getPostById = async (req, res) => {
 // Update Post por ID
 export const updatePostById = async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content, existingUrls } = req.body;
     const { id } = req.params;
     const userId = parseInt(req.userId)
     const files = req.files;
 
-
     const post = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
-        userId: req.userId
+        userId: parseInt(userId)
       }
     });
-
     if (!post) {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
+
     let images = [];
-    if (files && files.length > 0) {
+    if (files && files.length > 0 && existingUrls === undefined) {
       images = await uploadImages(files, 'photo');
 
     }
+
     await prisma.post.update({
       where: {
         id: parseInt(id),
-        userId: req.userId
+        userId: 1
       },
       data: {
-        title,
-        content,
-        url: images
+        title: title === post.title ? post.title : title,
+        content: content === post.content ? post.content : content,
+        url: images.length > 0 ? images : post.url
       }
     });
 
