@@ -3,8 +3,9 @@ import bcrypt from 'bcryptjs';
 
 export const getProfile = async (req, res) => {
   try {
+    const userId = req.userId;
     const user = await prisma.user.findUnique({
-      where: { id: req.userId },
+      where: { id: parseInt(userId) },
       select: {
         id: true,
         email: true,
@@ -18,47 +19,48 @@ export const getProfile = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao buscar perfil' });
+    return res.status(500).json({ error: 'Erro ao buscar perfil' });
   }
 };
 
 export const updateProfileEmailName = async (req, res) => {
   try {
+
     const { name, email } = req.body;
-    const user = await prisma.user.update({
-      where: { email }
+
+    const user = await prisma.user.findFirst({
+      where: { email },
     });
 
-    if (user.email === email) res.status(401).json({ error: 'Email ja casatrado.' })
-
-    if (user.name === name) res.status(401).json({ error: 'Nome ja casatrado.' })
-
     const updatedData = {
-      name,
-      email
+      name: name !== undefined || '' ? name : user.name,
+      email: email !== undefined || '' ? email : user.email
     };
 
-    const newUser = await prisma.user.update({
-      where: { id: req.userId },
+    await prisma.user.update({
+      where: { id: 1 },
       data: updatedData
     });
 
-    res.status(200).json(newUser);
+    return res.status(200).json({ message: 'Perfil atualizado com sucesso' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao atualizar perfil' });
+    return res.status(500).json({ error: 'Erro ao atualizar perfil' });
   }
 };
 
 export const updateProfilePassword = async (req, res) => {
   try {
+    console.log(req.body);
     const { currentPassword, newPassword } = req.body;
+    const userId = req.userId;
     const user = await prisma.user.findUnique({
-      where: { id: req.userId }
+      where: { id: parseInt(userId) },
     });
+
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
@@ -71,17 +73,17 @@ export const updateProfilePassword = async (req, res) => {
     if (newPassword) {
       updatedData.password = await bcrypt.hash(newPassword, 10);
     }
-    equalsPassword = await bcrypt.compare(updatedData.password, user.password)
-    if (user.password === equalsPassword) res.status(401).json({ error: 'Nome ja casatrado.' })
-    const newUser = await prisma.user.update({
-      where: { id: req.userId },
+    let equalsPassword = await bcrypt.compare(updatedData.password, user.password)
+    if (user.password === equalsPassword) return res.status(401).json({ error: 'Nome ja casatrado.' })
+    await prisma.user.update({
+      where: { id: parseInt(userId) },
       data: updatedData
     });
 
-    res.status(200).json(newUser);
+    return res.status(200).json({ message: 'Senha atualizada com sucesso' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao atualizar perfil' });
+    return res.status(500).json({ error: 'Erro ao atualizar perfil' });
   }
 };
 

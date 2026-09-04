@@ -1,7 +1,6 @@
 import { prisma } from '../utils/prisma.js';
 import { uploadImages } from '../utils/supabase.js';
 
-
 // Criar Post
 export const createPost = async (req, res) => {
   try {
@@ -17,7 +16,7 @@ export const createPost = async (req, res) => {
     const images = await uploadImages(files, 'photo');
 
     // 4. Criação da Postagem no Prisma
-    const newPost = await prisma.post.create({
+    await prisma.post.create({
       data: {
         title: title.trim(),
         content: content && content.trim() !== '' ? content.trim() : null,
@@ -45,7 +44,7 @@ export const getPosts = async (req, res) => {
     res.json(posts);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao buscar posts' });
+    return res.status(500).json({ error: 'Erro ao buscar posts' });
   }
 };
 
@@ -64,10 +63,10 @@ export const getPostById = async (req, res) => {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
 
-    res.status(200).json(post);
+    return res.status(200).json(post);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao buscar post' });
+    return res.status(500).json({ error: 'Erro ao buscar post' });
   }
 };
 
@@ -85,6 +84,7 @@ export const updatePostById = async (req, res) => {
         userId: parseInt(userId)
       }
     });
+
     if (!post) {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
@@ -92,13 +92,12 @@ export const updatePostById = async (req, res) => {
     let images = [];
     if (files && files.length > 0 && existingUrls === undefined) {
       images = await uploadImages(files, 'photo');
-
     }
 
     await prisma.post.update({
       where: {
         id: parseInt(id),
-        userId: 1
+        userId: parseInt(userId)
       },
       data: {
         title: title === post.title ? post.title : title,
@@ -107,10 +106,10 @@ export const updatePostById = async (req, res) => {
       }
     });
 
-    res.status(200).json({ message: 'Post atualizado com sucesso' });
+    return res.status(200).json({ message: 'Post atualizado com sucesso' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao atualizar post' });
+    return res.status(500).json({ error: 'Erro ao atualizar post' });
   }
 };
 
@@ -133,10 +132,10 @@ export const deletePost = async (req, res) => {
       where: { id: parseInt(id) }
     });
 
-    res.status(200).json({ message: 'Post deletado com sucesso' });
+    return res.status(200).json({ message: 'Post deletado com sucesso' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao deletar post' });
+    return res.status(500).json({ error: 'Erro ao deletar post' });
   }
 };
 
