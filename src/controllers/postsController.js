@@ -75,9 +75,8 @@ export const updatePostById = async (req, res) => {
   try {
     const { title, content, existingUrls } = req.body;
     const { id } = req.params;
-    const userId = parseInt(req.userId)
+    const userId = req.userId;
     const files = req.files;
-
     const post = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
