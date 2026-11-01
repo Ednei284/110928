@@ -139,7 +139,7 @@ export const deletePost = async (req, res) => {
   }
 };
 
-export const generatePdf = async (req, res) => {
+export const generatePDF = async (req, res) => {
   try {
 
     // 1. Primeiro: Busque os dados no banco
