@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "nodemailer": "^9.0.3",
+    "puppeteer": "^25.16.0",
     "sharp": "^0.34.5"
   },
   "devDependencies": {

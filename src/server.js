@@ -29,7 +29,7 @@ app.use('/api/posts', postsRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toLocaleString('pt-BR') });
 });
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta http://localhost:${PORT}`);
+const HOST = '127.0.0.1';
+app.listen(PORT, HOST, () => {
+  console.log(`Servidor rodando na porta http://${HOST}:${PORT}`);
 });

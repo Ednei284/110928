@@ -1,3 +1,4 @@
+import { generatePDFBuffer } from '../utils/generetePDFBuffer.js';
 import { prisma } from '../utils/prisma.js';
 import { uploadImages } from '../utils/supabase.js';
 
@@ -138,3 +139,34 @@ export const deletePost = async (req, res) => {
   }
 };
 
+export const generatePdf = async (req, res) => {
+  try {
+
+    // 1. Primeiro: Busque os dados no banco
+    const posts = await prisma.post.findMany({
+      where: {
+        userId: parseInt(req.userId)
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    // 2. Segundo: Valide se existem dados ANTES de alterar os headers de PDF
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ error: 'Nenhum post encontrado para este usuário.' });
+    }
+
+    // 3. Terceiro: Se passou pela validação, configure os headers para o PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=posts_${req.user.name || 'usuario'}.pdf`);
+
+    // 4. Quarto: Gere o PDF e envie
+    const pdfBuffer = await generatePDFBuffer(posts);
+    // console.log('generatePdf-pdfBuffer', pdfBuffer);
+
+    return res.send(pdfBuffer);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Erro ao gerar PDF' });
+  }
+}
