@@ -1,6 +1,6 @@
 import { generatePDFBuffer } from '../utils/generetePDFBuffer.js';
 import { prisma } from '../utils/prisma.js';
-import { uploadImages } from '../utils/supabase.js';
+import { deleteImage, uploadImages } from '../utils/supabase.js';
 
 // Criar Post
 export const createPost = async (req, res) => {
@@ -14,7 +14,7 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ error: 'O título é obrigatório.' });
     }
     // 3. Upload das imagens (fora de loops de validação)
-    const images = await uploadImages(files, 'photo');
+    const images = await uploadImages(files, 'photo',userId);
 
     // 4. Criação da Postagem no Prisma
     await prisma.post.create({
@@ -117,19 +117,19 @@ export const updatePostById = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = parseInt(req.userId);
     const post = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
-        userId: req.userId
+        userId: userId
       }
     });
 
     if (!post) {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
-
-    await prisma.post.delete({
-      where: { id: parseInt(id) }
+    post.url.forEach(async (url) => {
+      await deleteImage(url.split('/').slice(-1)[0]); // Deleta a imagem do Supabase
     });
 
     return res.status(200).json({ message: 'Post deletado com sucesso' });

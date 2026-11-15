@@ -4,8 +4,8 @@ import { loginLimiter } from '../middlewares/rateLimit.js';
 const router = express.Router();
 
 // Rotas públicas
-router.post('/validate-code', validateCode);
 router.post('/login', loginLimiter, login);
+router.post('/validate-code', validateCode);
 router.post('/logout', logout);
 
 export default router;

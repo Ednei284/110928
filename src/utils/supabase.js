@@ -42,3 +42,12 @@ export async function uploadImages(files, folder, userId) {
   const urls = await Promise.all(uploadPromises);
   return urls; // Retorna um array com as URLs das imagens
 }
+export async function deleteImage(filePath) {
+  const { error } = await supabase.storage
+    .from('photo')
+    .remove(['photo/' + filePath]);
+
+  if (error) {
+    throw error;
+  }
+}
