@@ -6,7 +6,6 @@ import { transporter } from '../utils/serviceEmail.js';
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password);
 
     const ip = req.ip;
     const cleanIP = ip.replace('::ffff:', '');
