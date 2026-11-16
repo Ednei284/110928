@@ -10,7 +10,7 @@ export const loginLimiter = rateLimit({
   },
   // Handler executado quando atinge o limite
   handler: async (req, res) => {
-    const ip = req.ip || req.connection.remoteAddress;
+    const ip = req.ip;
     const cleanIP = ip.replace('::ffff:', '');
 
     try {
@@ -62,7 +62,7 @@ export const apiLimiter = rateLimit({
     error: 'Muitas requisições. Tente novamente mais tarde.'
   },
   handler: async (req, res) => {
-    const ip = req.ip || req.connection.remoteAddress;
+    const ip = req.ip;
     const cleanIP = ip.replace('::ffff:', '');
     try {
       // Verifica se IP já existe
@@ -113,7 +113,7 @@ export const privateLimiter = rateLimit({
     error: 'Muitas requisições. Tente novamente mais tarde.'
   },
   handler: async (req, res) => {
-    const ip = req.ip || req.connection.remoteAddress;
+    const ip = req.ip;
     const cleanIP = ip.replace('::ffff:', '');
 
     try {

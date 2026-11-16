@@ -35,7 +35,6 @@ export const createPost = async (req, res) => {
     return res.status(500).json({ error: 'Erro ao criar post' });
   }
 };
-
 // Buscar todos os Posts do usuário
 export const getPosts = async (req, res) => {
   try {
@@ -48,9 +47,8 @@ export const getPosts = async (req, res) => {
     return res.status(500).json({ error: 'Erro ao buscar posts' });
   }
 };
-
 // Buscar Post por ID
-export const getPostById = async (req, res) => {
+export const getPost = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await prisma.post.findFirst({
@@ -70,9 +68,8 @@ export const getPostById = async (req, res) => {
     return res.status(500).json({ error: 'Erro ao buscar post' });
   }
 };
-
 // Update Post por ID
-export const updatePostById = async (req, res) => {
+export const updatePost = async (req, res) => {
   try {
     const { title, content, existingUrls } = req.body;
     const { id } = req.params;
@@ -112,7 +109,6 @@ export const updatePostById = async (req, res) => {
     return res.status(500).json({ error: 'Erro ao atualizar post' });
   }
 };
-
 // Deletar Post
 export const deletePost = async (req, res) => {
   try {
@@ -124,22 +120,25 @@ export const deletePost = async (req, res) => {
         userId: parseInt(userId)
       }
     });
-
-
     if (!post) {
       return res.status(404).json({ error: 'Post não encontrado' });
     }
     post.url.forEach(async (url) => {
       await deleteImage(url.split('/').slice(-1)[0]); // Deleta a imagem do Supabase
     });
-
+    await prisma.post.delete({
+      where: {
+        id: parseInt(id),
+        userId: parseInt(userId)
+      }
+    });
     return res.status(200).json({ message: 'Post deletado com sucesso' });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Erro ao deletar post' });
   }
 };
-
+// Gerar PDF dos Posts do usuário
 export const generatePDF = async (req, res) => {
   try {
 

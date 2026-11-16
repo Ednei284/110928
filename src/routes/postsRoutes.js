@@ -4,8 +4,8 @@ import { authenticate } from '../middlewares/auth.js';
 import {
   createPost,
   getPosts,
-  getPostById,
-  updatePostById,
+  getPost,
+  updatePost,
   deletePost,
   generatePDF
 } from '../controllers/postsController.js';
@@ -19,9 +19,9 @@ const router = express.Router();
 router.get('/', getPosts);
 router.use(privateLimiter);
 router.get('/generate-pdf', authenticate, generatePDF);
-router.get('/:id', authenticate, getPostById);
+router.get('/:id', authenticate, getPost);
 router.delete('/:id', authenticate, deletePost);
 router.post('/', authenticate, upload.array('files', 3), createPost);
-router.patch('/:id', authenticate, upload.array('files', 3), updatePostById);
+router.patch('/:id', authenticate, upload.array('files', 3), updatePost);
 
 export default router;
