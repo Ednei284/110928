@@ -14,7 +14,7 @@ export const createPost = async (req, res) => {
       return res.status(400).json({ error: 'O título é obrigatório.' });
     }
     // 3. Upload das imagens (fora de loops de validação)
-    const images = await uploadImages(files, 'photo',userId);
+    const images = await uploadImages(files, 'photo', parseInt(userId));
 
     // 4. Criação da Postagem no Prisma
     await prisma.post.create({
@@ -91,7 +91,7 @@ export const updatePostById = async (req, res) => {
 
     let images = [];
     if (files && files.length > 0 && existingUrls === undefined) {
-      images = await uploadImages(files, 'photo');
+      images = await uploadImages(files, 'photo', parseInt(userId));
     }
 
     await prisma.post.update({
@@ -117,13 +117,14 @@ export const updatePostById = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = parseInt(req.userId);
+    const userId = req.userId;
     const post = await prisma.post.findFirst({
       where: {
         id: parseInt(id),
-        userId: userId
+        userId: parseInt(userId)
       }
     });
+
 
     if (!post) {
       return res.status(404).json({ error: 'Post não encontrado' });
