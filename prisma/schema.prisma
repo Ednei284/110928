@@ -17,6 +17,7 @@ model User {
   updatedAt DateTime @updatedAt
   
   posts    Post[]
+  arts     Art[]
   verification_code    VerificationCode[]
   
   @@map("users")
@@ -42,7 +43,6 @@ model VerificationCode {
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("verification_code")
-
 }
 
 model BlacklistedIP {
@@ -54,6 +54,7 @@ model BlacklistedIP {
   blockedAt DateTime? // Quando foi bloqueado
   blocked   Boolean  @default(false)
 }
+
 model FailedLoginAttempt {
   id        Int      @id @default(autoincrement())
   email     String
@@ -63,4 +64,17 @@ model FailedLoginAttempt {
   @@index([email, ip])
   @@index([createdAt])
   @@map("failed_login_attempts")
+}
+
+model Art {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  url       String[]
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("art")
 }
