@@ -15,16 +15,16 @@ export async function uploadImages(files, folder, userId) {
   const uploadPromises = files.map(async (file) => {
     const fileExt = 'webp';
 
-    const filePath = folder === "photo" ? `${folder}/${userId}img_${Date.now()}.${fileExt}` : `${folder}/${userId}img_${Date.now()}.${fileExt}`;
-    const largura = folder === 'photo' ? 300 : 300;
-    const altura = folder === 'photo' ? 300 : 300;
+    const filePath = folder && `${folder}/${userId}img_${Date.now()}.${fileExt}`;
+    const largura = 300;
+    const altura = 300;
     const optimizedBuffer = await sharp(file.buffer)
       .resize(largura, altura) // Redimensiona
       .webp({ quality: 80 }) // Comprime
       .toBuffer();
 
     const { error } = await supabase.storage
-      .from('photo')
+      .from(folder)
       .upload(filePath, optimizedBuffer, {
         contentType: 'image/webp',
         upsert: true
@@ -33,7 +33,7 @@ export async function uploadImages(files, folder, userId) {
     if (error) throw error;
 
     const { data: { publicUrl } } = supabase.storage
-      .from('photo')
+      .from(folder)
       .getPublicUrl(filePath);
     return publicUrl;
   });
@@ -42,10 +42,10 @@ export async function uploadImages(files, folder, userId) {
   const urls = await Promise.all(uploadPromises);
   return urls; // Retorna um array com as URLs das imagens
 }
-export async function deleteImage(filePath) {
+export async function deleteImage(filePath, folder) {
   const { error } = await supabase.storage
-    .from('photo')
-    .remove(['photo/' + filePath]);
+    .from(folder)
+    .remove([`${folder}/${filePath}`]);
 
   if (error) {
     throw error;
